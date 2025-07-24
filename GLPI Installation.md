@@ -13,9 +13,9 @@ apt update && apt upgrade
 For this, we are using Apache 2, MariaDB Server, PHP and its respective extensions. If your operating system and repositories are updated, the latest stable version of the extensions are already the ones downloaded.
 
 ```bash
-apt install -y apache2 php php-{apcu,cli,common,curl,gd,imap,ldap,mysql,xmlrpc,xml,mbstring,bcmath,intl,zip,redis,bz2} libapache2-mod-php php-soap php-cas  
+apt install -y apache2 php php-{apcu,cli,common,curl,gd,imap,ldap,mysql,xmlrpc,xml,mbstring,bcmath,intl,zip,redis,bz2} libapache2-mod-php php-soap php-cas
 
-apt install -y mariadb-server  
+apt install -y mariadb-server 
 ```
 
 _After all the components are installed, we need to follow the steps._
@@ -49,11 +49,11 @@ mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql mysql
 ### Create a user and database dedicated to GLPI
 
 ```bash
-mysql -uroot -pmysql  
-CREATE DATABASE glpi;  
-CREATE USER 'glpi'@'localhost' IDENTIFIED BY 'Password-1';  
-GRANT ALL PRIVILEGES ON glpi.\* TO 'glpi'@'localhost';  
-GRANT SELECT ON mysql.\* TO 'glpi'@'localhost';  
+mysql -uroot -pmysql
+CREATE DATABASE glpi;
+CREATE USER 'glpi'@'localhost' IDENTIFIED BY 'Password-1';
+GRANT ALL PRIVILEGES ON glpi.* TO 'glpi'@'localhost';
+GRANT SELECT ON mysql.* TO 'glpi'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
@@ -62,8 +62,9 @@ FLUSH PRIVILEGES;
 After installing the components and create database and service user to receive GLPI folders, you will download the \*.tgz latest version of GLPI and store it on apache main root folder.
 
 ```bash
-cd /var/www/html  
-wget <https://github.com/glpi-project/glpi/releases/download/10.0.18/glpi-10.0.18.tgztar> -xvzf glpi-10.0.18.tgz  
+cd /var/www/html
+wget https://github.com/glpi-project/glpi/releases/download/10.0.18/glpi-10.0.18.tgz
+tar -xvzf glpi-10.0.18.tgz
 ```
 
 ### Filesystem Hierarchy Standard Breakdown
@@ -84,17 +85,17 @@ The downstream.php file is responsible for instructing GLPI application where th
 - Create the downstream.php file
 
 ```bash
-vim /var/www/html/glpi/inc/downstream.php  
+vim /var/www/html/glpi/inc/downstream.php 
 ```
 
 - Declare the new config file folder - you can insert this content in this file you have created
 
 ```bash
-<?php  
-define('GLPI_CONFIG_DIR', '/etc/glpi/');  
-if (file_exists(GLPI_CONFIG_DIR . '/local_define.php')) {  
-require_once GLPI_CONFIG_DIR . '/local_define.php';  
-}  
+<?php
+define('GLPI_CONFIG_DIR', '/etc/glpi/');
+if (file_exists(GLPI_CONFIG_DIR . '/local_define.php')) {
+require_once GLPI_CONFIG_DIR . '/local_define.php';
+}
 ```
 
 - Now you may move the folders from its current directory to the new directories:
@@ -118,21 +119,21 @@ vim /etc/glpi/local_define.php
 - Paste the following in this file
 
 ```bash
-<?php  
-define('GLPI_VAR_DIR', '/var/lib/glpi');  
-define('GLPI_DOC_DIR', GLPI_VAR_DIR);  
-define('GLPI_CRON_DIR', GLPI_VAR_DIR . '/\_cron');  
-define('GLPI_DUMP_DIR', GLPI_VAR_DIR . '/\_dumps');  
-define('GLPI_GRAPH_DIR', GLPI_VAR_DIR . '/\_graphs');  
-define('GLPI_LOCK_DIR', GLPI_VAR_DIR . '/\_lock');  
-define('GLPI_PICTURE_DIR', GLPI_VAR_DIR . '/\_pictures');  
-define('GLPI_PLUGIN_DOC_DIR', GLPI_VAR_DIR . '/\_plugins');  
-define('GLPI_RSS_DIR', GLPI_VAR_DIR . '/\_rss');  
-define('GLPI_SESSION_DIR', GLPI_VAR_DIR . '/\_sessions');  
-define('GLPI_TMP_DIR', GLPI_VAR_DIR . '/\_tmp');  
-define('GLPI_UPLOAD_DIR', GLPI_VAR_DIR . '/\_uploads');  
-define('GLPI_CACHE_DIR', GLPI_VAR_DIR . '/\_cache');  
-define('GLPI_LOG_DIR', '/var/log/glpi');  
+<?php
+define('GLPI_VAR_DIR', '/var/lib/glpi');
+define('GLPI_DOC_DIR', GLPI_VAR_DIR);
+define('GLPI_CRON_DIR', GLPI_VAR_DIR . '/_cron');
+define('GLPI_DUMP_DIR', GLPI_VAR_DIR . '/_dumps');
+define('GLPI_GRAPH_DIR', GLPI_VAR_DIR . '/_graphs');
+define('GLPI_LOCK_DIR', GLPI_VAR_DIR . '/_lock');
+define('GLPI_PICTURE_DIR', GLPI_VAR_DIR . '/_pictures');
+define('GLPI_PLUGIN_DOC_DIR', GLPI_VAR_DIR . '/_plugins');
+define('GLPI_RSS_DIR', GLPI_VAR_DIR . '/_rss');
+define('GLPI_SESSION_DIR', GLPI_VAR_DIR . '/_sessions');
+define('GLPI_TMP_DIR', GLPI_VAR_DIR . '/_tmp');
+define('GLPI_UPLOAD_DIR', GLPI_VAR_DIR . '/_uploads');
+define('GLPI_CACHE_DIR', GLPI_VAR_DIR . '/_cache');
+define('GLPI_LOG_DIR', '/var/log/glpi');
 ```
 
 ## 4 - Folder and File Permissions
