@@ -191,7 +191,7 @@ Run the following command on your web server:
 openssl req -x509 -nodes -days 36500 -newkey rsa:2048 \
   -keyout /etc/ssl/private/glpi-selfsigned.key \
   -out /etc/ssl/certs/glpi-selfsigned.crt \
-  -subj "/C=CA/ST=Manitoba/L=Winnipeg/O=MITT/OU=IT/CN=glpi.test.local"  
+  -subj "/C=CA/ST=Manitoba/L=Winnipeg/O=BalkaranHomeLab/OU=IT/CN=glpi.test.local"  
 ````
 
 ### Enable Apache Modules and Virtual Host
