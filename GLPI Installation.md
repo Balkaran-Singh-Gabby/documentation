@@ -51,7 +51,7 @@ mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql mysql
 ```bash
 mysql -uroot -pmysql  
 CREATE DATABASE glpi;  
-CREATE USER 'glpi'@'localhost' IDENTIFIED BY 'password-1';  
+CREATE USER 'glpi'@'localhost' IDENTIFIED BY 'Password-1';  
 GRANT ALL PRIVILEGES ON glpi.\* TO 'glpi'@'localhost';  
 GRANT SELECT ON mysql.\* TO 'glpi'@'localhost';  
 FLUSH PRIVILEGES;
@@ -158,22 +158,29 @@ Create a file at /etc/apache2/sites-available/glpi.conf.
 In this file, add the following content:
 
 ```bash
-&lt;VirtualHost \*:443&gt;  
-ServerName glpi.test.local  
-<br/>DocumentRoot /var/www/html/glpi/public  
-<br/><br/>SSLEngine on  
-SSLCertificateFile /etc/ssl/certs/glpi-selfsigned.crt  
-SSLCertificateKeyFile /etc/ssl/private/glpi-selfsigned.key  
-<br/>&lt;Directory /var/www/html/glpi/public&gt;  
-Require all granted  
-<br/>RewriteEngine On  
-<br/>RewriteCond %{HTTP:Authorization} ^(.+)$  
-RewriteRule .\* - \[E=HTTP_AUTHORIZATION:%{HTTP:Authorization}\]  
-<br/>RewriteCond %{REQUEST_FILENAME} !-f  
-RewriteRule ^(.\*)$ index.php \[QSA,L\]
+<VirtualHost *:443>
+    ServerName glpi.test.local
 
-&lt;/Directory&gt;  
-&lt;/VirtualHost&gt;  
+    DocumentRoot /var/www/html/glpi/public
+
+
+    SSLEngine on
+    SSLCertificateFile /etc/ssl/certs/glpi-selfsigned.crt
+    SSLCertificateKeyFile /etc/ssl/private/glpi-selfsigned.key
+
+    <Directory /var/www/html/glpi/public>
+        Require all granted
+
+        RewriteEngine On
+
+        RewriteCond %{HTTP:Authorization} ^(.+)$
+        RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteRule ^(.*)$ index.php [QSA,L]
+
+    </Directory>
+</VirtualHost>
 ```
 
 ### Generate a Self-Signed SSL Certificate
@@ -181,10 +188,10 @@ RewriteRule ^(.\*)$ index.php \[QSA,L\]
 Run the following command on your web server:
 
 ```bash
-openssl req -x509 -nodes -days 36500 -newkey rsa:2048 \\  
-\-keyout /etc/ssl/private/glpi-selfsigned.key \\  
-\-out /etc/ssl/certs/glpi-selfsigned.crt \\  
-\-subj "/C=CA/ST=Manitoba/L=Winnipeg/O=MITT/OU=IT/CN=glpi.test.local"  
+openssl req -x509 -nodes -days 36500 -newkey rsa:2048 \
+  -keyout /etc/ssl/private/glpi-selfsigned.key \
+  -out /etc/ssl/certs/glpi-selfsigned.crt \
+  -subj "/C=CA/ST=Manitoba/L=Winnipeg/O=MITT/OU=IT/CN=glpi.test.local"  
 ````
 
 ### Enable Apache Modules and Virtual Host
@@ -205,9 +212,10 @@ Automatically redirected from HTTP to HTTPS:
 2. Add this content:
 
 ```bash
-&lt;VirtualHost \*:80&gt;  
-ServerName glpi.test.local  
-Redirect permanent / https://glpi.test.local/&lt;/VirtualHost&gt;  
+<VirtualHost *:80>
+    ServerName glpi.test.local
+    Redirect permanent / https://glpi.test.local/
+</VirtualHost>
 ```
 
 1. Enable the redirect site:
