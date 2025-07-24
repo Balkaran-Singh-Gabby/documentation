@@ -12,9 +12,11 @@ apt update && apt upgrade
 
 For this, we are using Apache 2, MariaDB Server, PHP and its respective extensions. If your operating system and repositories are updated, the latest stable version of the extensions are already the ones downloaded.
 
+```bash
 apt install -y apache2 php php-{apcu,cli,common,curl,gd,imap,ldap,mysql,xmlrpc,xml,mbstring,bcmath,intl,zip,redis,bz2} libapache2-mod-php php-soap php-cas  
 
 apt install -y mariadb-server  
+```
 
 _After all the components are installed, we need to follow the steps._
 
@@ -24,7 +26,9 @@ MariaDB, by default is provided without a default password set to the root user 
 
 ### Secure MariaDB Installation
 
+```bash
 mysql_secure_installation  
+```
 
 By default, it will ask for a password for root password after this command, skip it by pressing ENTRE. You can set password for root user when you select yes for change the root password.
 
@@ -38,23 +42,29 @@ By default, it will ask for a password for root password after this command, ski
 
 Furthermore, since GLPI is a global ITSM tool which may be used by people from all around the world at the same time, you would like to activate the possibility to GLPI database service user to read timezone information from your default mysql database.
 
+```bash
 mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql mysql  
+```
 
 ### Create a user and database dedicated to GLPI
 
+```bash
 mysql -uroot -pmysql  
 CREATE DATABASE glpi;  
 CREATE USER 'glpi'@'localhost' IDENTIFIED BY 'password-1';  
 GRANT ALL PRIVILEGES ON glpi.\* TO 'glpi'@'localhost';  
 GRANT SELECT ON mysql.\* TO 'glpi'@'localhost';  
 FLUSH PRIVILEGES;
+```
 
 ## 3 - Preparing files to Install GLPI
 
 After installing the components and create database and service user to receive GLPI folders, you will download the \*.tgz latest version of GLPI and store it on apache main root folder.
 
+```bash
 cd /var/www/html  
 wget <https://github.com/glpi-project/glpi/releases/download/10.0.18/glpi-10.0.18.tgztar> -xvzf glpi-10.0.18.tgz  
+```
 
 ### Filesystem Hierarchy Standard Breakdown
 
@@ -73,21 +83,27 @@ The downstream.php file is responsible for instructing GLPI application where th
 
 - Create the downstream.php file
 
+```bash
 vim /var/www/html/glpi/inc/downstream.php  
+```
 
 - Declare the new config file folder - you can insert this content in this file you have created
 
+```bash
 <?php  
 define('GLPI_CONFIG_DIR', '/etc/glpi/');  
 if (file_exists(GLPI_CONFIG_DIR . '/local_define.php')) {  
 require_once GLPI_CONFIG_DIR . '/local_define.php';  
 }  
+```
 
 - Now you may move the folders from its current directory to the new directories:
 
+```bash
 mv /var/www/html/glpi/config /etc/glpi  
 mv /var/www/html/glpi/files /var/lib/glpi  
 mv /var/lib/glpi/\_log /var/log/glpi  
+```
 
 After you declare the new **GLPI_CONFIG_DIR** with the **downstream.php**, navigate to this new directory **/etc/glpi** and create a new file called local_define.php. This file is reponsible for instructing GLPI where the other directories are stored.
 
@@ -95,10 +111,13 @@ We are changing the documents folder ( **files** ) and the logs folder ( **files
 
 - Create the local_define.php file
 
+```bash
 vim /etc/glpi/local_define.php  
+```
 
 - Paste the following in this file
 
+```bash
 <?php  
 define('GLPI_VAR_DIR', '/var/lib/glpi');  
 define('GLPI_DOC_DIR', GLPI_VAR_DIR);  
@@ -114,16 +133,19 @@ define('GLPI_TMP_DIR', GLPI_VAR_DIR . '/\_tmp');
 define('GLPI_UPLOAD_DIR', GLPI_VAR_DIR . '/\_uploads');  
 define('GLPI_CACHE_DIR', GLPI_VAR_DIR . '/\_cache');  
 define('GLPI_LOG_DIR', '/var/log/glpi');  
+```
 
 ## 4 - Folder and File Permissions
 
 Permissions for your GLPI installation
 
+```bash
 chown root:root /var/www/html/glpi/ -R  
 chown www-data:www-data /etc/glpi -R  
 chown www-data:www-data /var/lib/glpi -R  
 chown www-data:www-data /var/log/glpi -R  
 chown www-data:www-data /var/www/html/glpi/marketplace -Rf  
+```
 
 ## 5 - Configure the Web Server
 
@@ -135,6 +157,7 @@ Create a file at /etc/apache2/sites-available/glpi.conf.
 
 In this file, add the following content:
 
+```bash
 &lt;VirtualHost \*:443&gt;  
 ServerName glpi.test.local  
 <br/>DocumentRoot /var/www/html/glpi/public  
@@ -151,15 +174,18 @@ RewriteRule ^(.\*)$ index.php \[QSA,L\]
 
 &lt;/Directory&gt;  
 &lt;/VirtualHost&gt;  
+```
 
 ### Generate a Self-Signed SSL Certificate
 
 Run the following command on your web server:
 
+```bash
 openssl req -x509 -nodes -days 36500 -newkey rsa:2048 \\  
 \-keyout /etc/ssl/private/glpi-selfsigned.key \\  
 \-out /etc/ssl/certs/glpi-selfsigned.crt \\  
 \-subj "/C=CA/ST=Manitoba/L=Winnipeg/O=MITT/OU=IT/CN=glpi.test.local"  
+````
 
 ### Enable Apache Modules and Virtual Host
 
@@ -178,11 +204,15 @@ Automatically redirected from HTTP to HTTPS:
 1. Create a file: /etc/apache2/sites-available/glpi-redirect.conf
 2. Add this content:
 
+```bash
 &lt;VirtualHost \*:80&gt;  
 ServerName glpi.test.local  
 Redirect permanent / https://glpi.test.local/&lt;/VirtualHost&gt;  
+```
 
 1. Enable the redirect site:
 
+```bash
 a2ensite glpi-redirect.conf  
 systemctl reload apache2
+```
